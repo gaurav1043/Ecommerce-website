@@ -1,40 +1,87 @@
-import React from "react";
+import React, { useState } from "react";
 import styles from "./auth.module.scss";
 import loginImg from "../../assets/login.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaGoogle } from "react-icons/fa";
 import Card from "../../components/card/Card";
-const login = () => {
-  return (
-    <section className={`container ${styles.auth}`}>
-      <div className={styles.img}>
-        <img src={loginImg} alt="Login" width="400px" />
-      </div>
-      <Card>
-        <div className={styles.form}>
-          <h2>Login</h2>
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase/config";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Loader from "../../components/loader/Loader";
 
-          <form>
-            <input type="text" placeholder="Email" required />
-            <input type="password" placeholder="Password" required />
-            <button className="--btn --btn-primary --btn-block">Login</button>
-            <div classname={styles.links}>
-              <Link to="/reset">Forgot Password</Link>
-            </div>
-            <p>-- or --</p>
-          </form>
-          <button className="--btn --btn-danger --btn-block">
-            <FaGoogle color="#fff" />
-            Login With Google
-          </button>
-          <span className={styles.register}>
-            <p>Dont have an account?</p>
-            <Link to="/register">Register</Link>
-          </span>
+const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+  const loginUser = (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log(user);
+        setIsLoading(false);
+        toast.success("Login Successful");
+        navigate("/");
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        toast.error(error.message);
+      });
+  };
+  return (
+    <>
+      <ToastContainer />
+      {isLoading && <Loader />}
+      <section className={`container ${styles.auth}`}>
+        <div className={styles.img}>
+          <img src={loginImg} alt="Login" width="400px" />
         </div>
-      </Card>
-    </section>
+        <Card>
+          <div className={styles.form}>
+            <h2>Login</h2>
+
+            <form onSubmit={loginUser}>
+              <input
+                type="text"
+                placeholder="Email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button className="--btn --btn-primary --btn-block" type="submit">
+                Login
+              </button>
+              <div classname={styles.links}>
+                <Link to="/reset">Forgot Password</Link>
+              </div>
+              <p>-- or --</p>
+            </form>
+            <button className="--btn --btn-danger --btn-block">
+              <FaGoogle color="#fff" />
+              Login With Google
+            </button>
+            <span className={styles.register}>
+              <p>Dont have an account?</p>
+              <Link to="/register">Register</Link>
+            </span>
+          </div>
+        </Card>
+      </section>
+    </>
   );
 };
 
-export default login;
+export default Login;
