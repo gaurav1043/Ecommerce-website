@@ -4,10 +4,10 @@ import loginImg from "../../assets/login.png";
 import { Link, useNavigate } from "react-router-dom";
 import { FaGoogle } from "react-icons/fa";
 import Card from "../../components/card/Card";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth } from "../../firebase/config";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
+import { GoogleAuthProvider } from "firebase/auth";
 import Loader from "../../components/loader/Loader";
 
 const Login = () => {
@@ -16,7 +16,6 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
-
   const loginUser = (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -34,9 +33,25 @@ const Login = () => {
         toast.error(error.message);
       });
   };
+
+  const provider = new GoogleAuthProvider();
+  const googleLogin = () => {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        const user = result.user;
+        console.log(user);
+
+        setIsLoading(false);
+        toast.success("Login Successful");
+        navigate("/");
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        toast.error(error.message);
+      });
+  };
   return (
     <>
-      <ToastContainer />
       {isLoading && <Loader />}
       <section className={`container ${styles.auth}`}>
         <div className={styles.img}>
@@ -69,7 +84,10 @@ const Login = () => {
               </div>
               <p>-- or --</p>
             </form>
-            <button className="--btn --btn-danger --btn-block">
+            <button
+              className="--btn --btn-danger --btn-block"
+              onClick={googleLogin}
+            >
               <FaGoogle color="#fff" />
               Login With Google
             </button>
