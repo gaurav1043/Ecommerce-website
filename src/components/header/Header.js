@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import styles from "./Header.module.scss";
 import { BsFillCartFill } from "react-icons/bs";
 import { AiOutlineMenu } from "react-icons/ai";
+import { BiUserCircle } from "react-icons/bi";
 import { MdOutlineCancel } from "react-icons/md";
 import { auth } from "../../firebase/config";
 import { signOut } from "firebase/auth";
 import { toast } from "react-toastify";
-
+import { onAuthStateChanged } from "firebase/auth";
 const logo = (
   <div className={styles.logo}>
     <Link to="/">
@@ -29,6 +30,18 @@ const cart = (
 const activeLink = ({ isActive }) => (isActive ? `${styles.active}` : "");
 const Header = () => {
   const [showMenu, setShowMenu] = useState(false);
+  const [displayName, setDisplayName] = useState("");
+
+  //Monitor currently signed in user
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setDisplayName(user.displayName);
+      } else {
+        setDisplayName("");
+      }
+    });
+  });
   const toggleMenu = () => {
     setShowMenu(!showMenu);
   };
@@ -81,6 +94,10 @@ const Header = () => {
               <NavLink className={activeLink} to="/login">
                 Login
               </NavLink>
+              <a href="#">
+                <BiUserCircle size={16} />
+                Hi, {displayName}
+              </a>
               <NavLink className={activeLink} to="/register">
                 Register
               </NavLink>
