@@ -14,6 +14,7 @@ import {
   SET_ACTIVE_USER,
   REMOVE_ACTIVE_USER,
 } from "../../redux/slice/authSlice";
+import ShowOnLogin, { ShowOnLogout } from "../hiddenlink/HiddenLink";
 
 const logo = (
   <div className={styles.logo}>
@@ -49,7 +50,8 @@ const Header = () => {
       if (user) {
         if (user.displayName === null) {
           const u1 = user.email.substring(0, user.email.indexOf("@"));
-          const uName = u1.charAt(0).toUpperCase + u1.slice(1);
+          const uName = u1.charAt(0).toUpperCase() + u1.slice(1);
+          console.log(uName);
           setDisplayName(uName);
         } else {
           setDisplayName(user.displayName);
@@ -116,22 +118,27 @@ const Header = () => {
           </ul>
           <div className={styles["header-right"]} onClick={hideMenu}>
             <span className={styles.links}>
-              <NavLink className={activeLink} to="/login">
-                Login
-              </NavLink>
-              <a href="#home">
-                <BiUserCircle size={16} />
-                Hi, {displayName}
-              </a>
-              <NavLink className={activeLink} to="/register">
-                Register
-              </NavLink>
-              <NavLink className={activeLink} to="/order-history">
-                My Orders
-              </NavLink>
-              <NavLink to="/" onClick={logoutUser}>
-                Logout
-              </NavLink>
+              <ShowOnLogout>
+                <NavLink className={activeLink} to="/login">
+                  Login
+                </NavLink>
+              </ShowOnLogout>
+              <ShowOnLogin>
+                <a href="#home" style={{ color: "#ff7722" }}>
+                  <BiUserCircle size={16} />
+                  Hi, {displayName}
+                </a>
+              </ShowOnLogin>
+              <ShowOnLogin>
+                <NavLink className={activeLink} to="/order-history">
+                  My Orders
+                </NavLink>
+              </ShowOnLogin>
+              <ShowOnLogin>
+                <NavLink to="/" onClick={logoutUser}>
+                  Logout
+                </NavLink>
+              </ShowOnLogin>
             </span>
             {cart}
           </div>
