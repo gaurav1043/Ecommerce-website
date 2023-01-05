@@ -9,6 +9,8 @@ import { auth } from "../../firebase/config";
 import { signOut } from "firebase/auth";
 import { toast } from "react-toastify";
 import { onAuthStateChanged } from "firebase/auth";
+import { useDispatch } from "react-redux";
+
 const logo = (
   <div className={styles.logo}>
     <Link to="/">
@@ -28,9 +30,13 @@ const cart = (
   </span>
 );
 const activeLink = ({ isActive }) => (isActive ? `${styles.active}` : "");
+
 const Header = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [displayName, setDisplayName] = useState("");
+  const navigate = useNavigate();
+
+  const dispatch = useDispatch();
 
   //Monitor currently signed in user
   useEffect(() => {
@@ -48,7 +54,6 @@ const Header = () => {
   const hideMenu = () => {
     setShowMenu(false);
   };
-  const navigate = useNavigate();
 
   const logoutUser = () => {
     signOut(auth)
