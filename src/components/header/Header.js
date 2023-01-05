@@ -10,6 +10,10 @@ import { signOut } from "firebase/auth";
 import { toast } from "react-toastify";
 import { onAuthStateChanged } from "firebase/auth";
 import { useDispatch } from "react-redux";
+import {
+  SET_ACTIVE_USER,
+  REMOVE_ACTIVE_USER,
+} from "../../redux/slice/authSlice";
 
 const logo = (
   <div className={styles.logo}>
@@ -29,6 +33,7 @@ const cart = (
     </Link>
   </span>
 );
+
 const activeLink = ({ isActive }) => (isActive ? `${styles.active}` : "");
 
 const Header = () => {
@@ -42,12 +47,27 @@ const Header = () => {
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        setDisplayName(user.displayName);
+        if (user.displayName === null) {
+          const u1 = user.email.substring(0, user.email.indexOf("@"));
+          const uName = u1.charAt(0).toUpperCase + u1.slice(1);
+          setDisplayName(uName);
+        } else {
+          setDisplayName(user.displayName);
+        }
+        dispatch(
+          SET_ACTIVE_USER({
+            email: user.email,
+            userName: user.displayName ? user.displayName : displayName,
+            userId: user.uid,
+          })
+        );
       } else {
         setDisplayName("");
+        dispatch(REMOVE_ACTIVE_USER());
       }
     });
-  });
+  }, [dispatch, displayName]);
+
   const toggleMenu = () => {
     setShowMenu(!showMenu);
   };
@@ -99,7 +119,7 @@ const Header = () => {
               <NavLink className={activeLink} to="/login">
                 Login
               </NavLink>
-              <a href="#">
+              <a href="#home">
                 <BiUserCircle size={16} />
                 Hi, {displayName}
               </a>
